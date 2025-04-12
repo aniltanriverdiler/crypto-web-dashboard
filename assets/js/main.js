@@ -71,9 +71,9 @@ filterButtons.forEach((btn) => {
     let filteredData = [...allCoins];
 
     if (type === "favorites") {
-      // Get the favorite coins from localStorage
-      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-      filteredData = allCoins.filter((coin) => favorites.includes(coin.id));
+      // Get the favorite coins from localStorage for current user
+      displayFavorites();
+      return;
     } else if (type === "gainers") {
       filteredData = allCoins.filter(
         (coin) => coin.price_change_percentage_24h >= 0
@@ -149,7 +149,14 @@ fetchCryptoData();
 
 // Favorite Coin
 const toggleFavorite = (coinId) => {
-  let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+  let currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) {
+    alert("You need to log in first.");
+    return;
+  }
+
+  let favorites =
+    JSON.parse(localStorage.getItem(`${currentUser}_favorites`)) || [];
 
   if (favorites.includes(coinId)) {
     favorites = favorites.filter((id) => id !== coinId);
@@ -157,7 +164,23 @@ const toggleFavorite = (coinId) => {
     favorites.push(coinId);
   }
 
-  localStorage.setItem("favorites", JSON.stringify(favorites));
+  localStorage.setItem(`${currentUser}_favorites`, JSON.stringify(favorites));
+};
+
+// Display User's Favorites
+const displayFavorites = () => {
+  let currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) {
+    alert("You need to log in first.");
+    return;
+  }
+
+  const favorites =
+    JSON.parse(localStorage.getItem(`${currentUser}_favorites`)) || [];
+
+  const filteredData = allCoins.filter((coin) => favorites.includes(coin.id));
+
+  displayCrypto(filteredData);
 };
 
 // Welcome Message For Users
