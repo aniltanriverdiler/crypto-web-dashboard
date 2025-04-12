@@ -149,7 +149,7 @@ const showChart = async (coinId, coinName, priceChange) => {
 
 fetchCryptoData();
 
-// Favorite Button Event
+// Function to check if the coin is in favorites
 const isCoinFavorite = (coinId) => {
   let currentUser = localStorage.getItem("currentUser");
   if (!currentUser) {
@@ -162,7 +162,7 @@ const isCoinFavorite = (coinId) => {
   return favorites.includes(coinId);
 };
 
-// Favorite Coin
+// Favorite Coin Toggle
 const toggleFavorite = (coinId) => {
   let currentUser = localStorage.getItem("currentUser");
   if (!currentUser) {
@@ -172,15 +172,23 @@ const toggleFavorite = (coinId) => {
 
   let favorites =
     JSON.parse(localStorage.getItem(`${currentUser}_favorites`)) || [];
-
+  
+  
+  // Check if the coin is already in the favorites
   if (favorites.includes(coinId)) {
-    favorites = favorites.filter((id) => id !== coinId);
+    // Show confirmation dialog before removing the coin from favorites
+    const confirmRemoval = confirm("Are you sure you want to remove this coin from favorites?");
+    
+    if (confirmRemoval) {
+      favorites = favorites.filter((id) => id !== coinId);
+      localStorage.setItem(`${currentUser}_favorites`, JSON.stringify(favorites));
+      displayCrypto(allCoins);  
+    }
   } else {
     favorites.push(coinId);
+    localStorage.setItem(`${currentUser}_favorites`, JSON.stringify(favorites));
+    displayCrypto(allCoins);  
   }
-
-  localStorage.setItem(`${currentUser}_favorites`, JSON.stringify(favorites));
-  displayCrypto(allCoins);
 };
 
 // Display User's Favorites
@@ -193,6 +201,11 @@ const displayFavorites = () => {
 
   const favorites =
     JSON.parse(localStorage.getItem(`${currentUser}_favorites`)) || [];
+
+  if (favorites.length === 0) {
+    container.innerHTML = '<p>Henüz favori eklenmedi.</p>';
+    return;
+  }
 
   const filteredData = allCoins.filter((coin) => favorites.includes(coin.id));
 
