@@ -1,3 +1,4 @@
+// Form Animation
 const container = document.getElementById("container");
 const registerBtn = document.getElementById("register");
 const loginBtn = document.getElementById("login");
@@ -26,6 +27,9 @@ document.getElementById("registerForm").addEventListener("submit", (e) => {
 
   const data = JSON.stringify(userData);
   localStorage.setItem(email, data);
+
+  // Reset form fields after successful registration
+  document.getElementById("registerForm").reset();
 });
 
 // Login
@@ -50,5 +54,8 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
   } else {
     alert("Password Error!");
   }
+
+  // Reset form fields after successful login
+  document.getElementById("loginForm").reset();
 });
 
