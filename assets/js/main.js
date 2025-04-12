@@ -26,6 +26,7 @@ const displayCrypto = (coins) => {
     .map((coin) => {
       const priceChange = coin.price_change_percentage_24h.toFixed(2);
       const changeClass = priceChange >= 0 ? "text-success" : "text-danger";
+      const isFavorite = isCoinFavorite(coin.id); 
 
       return `
       <div class="col-md-4">
@@ -42,9 +43,10 @@ const displayCrypto = (coins) => {
           }', '${coin.name}', '${
         coin.price_change_percentage_24h
       }')" >Grafiği Göster</button>
-      <button class="btn btn-warning" onclick="toggleFavorite('${
-        coin.id
-      }')">⭐ Favorilere Ekle</button>
+      <button class="btn ${isFavorite ? "btn-danger" : "btn-outline-danger"}"
+       onclick="toggleFavorite('${coin.id}')">
+       ${isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+      </button>
       </div>
       </div>
       </div>
@@ -147,6 +149,19 @@ const showChart = async (coinId, coinName, priceChange) => {
 
 fetchCryptoData();
 
+// Favorite Button Event
+const isCoinFavorite = (coinId) => {
+  let currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) {
+    return false;
+  }
+
+  const favorites =
+    JSON.parse(localStorage.getItem(`${currentUser}_favorites`)) || [];
+  // Check if the coinId is in the favorites list
+  return favorites.includes(coinId);
+};
+
 // Favorite Coin
 const toggleFavorite = (coinId) => {
   let currentUser = localStorage.getItem("currentUser");
@@ -165,6 +180,7 @@ const toggleFavorite = (coinId) => {
   }
 
   localStorage.setItem(`${currentUser}_favorites`, JSON.stringify(favorites));
+  displayCrypto(allCoins);
 };
 
 // Display User's Favorites

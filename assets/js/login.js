@@ -11,7 +11,7 @@ loginBtn.addEventListener("click", () => {
   container.classList.remove("active");
 });
 
-// Register
+// Register Form
 document.getElementById("registerForm").addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -32,7 +32,7 @@ document.getElementById("registerForm").addEventListener("submit", (e) => {
   document.getElementById("registerForm").reset();
 });
 
-// Login
+// Login Form
 document.getElementById("loginForm").addEventListener("submit", (e) => {
   e.preventDefault();
 
