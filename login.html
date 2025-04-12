@@ -28,7 +28,7 @@
   <body>
     <div class="container" id="container">
       <div class="form-container sign-up">
-        <form>
+        <form id="registerForm">
           <h1>Create Account</h1>
           <div class="social-icons">
             <a href="#" class="icon">
@@ -41,14 +41,14 @@
             ></a>
           </div>
           <span>or use email for registeration</span>
-          <input type="text" placeholder="Name" />
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Password" />
-          <button>Sign Up</button>
+          <input type="text" id="registerName" placeholder="Name" />
+          <input type="email" id="registerEmail" placeholder="Email" />
+          <input type="password" id="registerPassword" placeholder="Password" />
+          <button type="submit">Sign Up</button>
         </form>
       </div>
       <div class="form-container sign-in">
-        <form>
+        <form id="loginForm">
           <h1>Sign in</h1>
           <div class="social-icons">
             <a href="#" class="icon"
@@ -61,10 +61,10 @@
             ></a>
           </div>
           <span>or use email password</span>
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Password" />
+          <input type="email" id="loginEmail" placeholder="Email" />
+          <input type="password" id="loginPassword" placeholder="Password" />
           <a href="#">Forget Your Password?</a>
-          <button>Sign In</button>
+          <button type="submit">Sign In</button>
         </form>
       </div>
       <div class="toggle-container">

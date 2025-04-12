@@ -159,3 +159,12 @@ const toggleFavorite = (coinId) => {
 
   localStorage.setItem("favorites", JSON.stringify(favorites));
 };
+
+// Welcome Message For Users
+const currentEmail = localStorage.getItem("currentUser");
+
+if (currentEmail) {
+  const user = JSON.parse(localStorage.getItem(currentEmail));
+  const welcomeElement = document.getElementById("welcomeMessage");
+  welcomeElement.textContent = `Welcome, ${user.name}!`;
+}
