@@ -26,7 +26,7 @@ const displayCrypto = (coins) => {
     .map((coin) => {
       const priceChange = coin.price_change_percentage_24h.toFixed(2);
       const changeClass = priceChange >= 0 ? "text-success" : "text-danger";
-      const isFavorite = isCoinFavorite(coin.id); 
+      const isFavorite = isCoinFavorite(coin.id);
 
       return `
       <div class="col-md-4">
@@ -172,22 +172,26 @@ const toggleFavorite = (coinId) => {
 
   let favorites =
     JSON.parse(localStorage.getItem(`${currentUser}_favorites`)) || [];
-  
-  
+
   // Check if the coin is already in the favorites
   if (favorites.includes(coinId)) {
     // Show confirmation dialog before removing the coin from favorites
-    const confirmRemoval = confirm("Are you sure you want to remove this coin from favorites?");
-    
+    const confirmRemoval = confirm(
+      "Are you sure you want to remove this coin from favorites?"
+    );
+
     if (confirmRemoval) {
       favorites = favorites.filter((id) => id !== coinId);
-      localStorage.setItem(`${currentUser}_favorites`, JSON.stringify(favorites));
-      displayCrypto(allCoins);  
+      localStorage.setItem(
+        `${currentUser}_favorites`,
+        JSON.stringify(favorites)
+      );
+      displayCrypto(allCoins);
     }
   } else {
     favorites.push(coinId);
     localStorage.setItem(`${currentUser}_favorites`, JSON.stringify(favorites));
-    displayCrypto(allCoins);  
+    displayCrypto(allCoins);
   }
 };
 
@@ -203,7 +207,7 @@ const displayFavorites = () => {
     JSON.parse(localStorage.getItem(`${currentUser}_favorites`)) || [];
 
   if (favorites.length === 0) {
-    container.innerHTML = '<p>Henüz favori eklenmedi.</p>';
+    container.innerHTML = "<p>Henüz favori eklenmedi.</p>";
     return;
   }
 
@@ -220,3 +224,9 @@ if (currentEmail) {
   const welcomeElement = document.getElementById("welcomeMessage");
   welcomeElement.textContent = `Welcome, ${user.name}!`;
 }
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("currentUser");
+  window.location.href = "login.html";
+});
