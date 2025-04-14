@@ -55,6 +55,12 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
     alert("Password Error!");
   }
 
+  const walletKey = `${email}_wallet`;
+  
+  if (!localStorage.getItem(walletKey)) {
+    localStorage.setItem(walletKey, JSON.stringify([]));
+  }
+
   // Reset form fields after successful login
   document.getElementById("loginForm").reset();
 });

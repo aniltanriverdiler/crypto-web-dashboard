@@ -47,6 +47,11 @@ const displayCrypto = (coins) => {
        onclick="toggleFavorite('${coin.id}')">
        ${isFavorite ? "Remove from Favorites" : "Add to Favorites"}
       </button>
+      <button class="btn ${
+        isCoinInWallet(coin.id) ? "btn-success" : "btn-outline-success"
+      }" onclick="toggleWallet('${coin.id}')">
+      ${isCoinInWallet(coin.id) ? "Remove from Wallet" : "Add to Wallet"}      
+      </button>
       </div>
       </div>
       </div>
@@ -229,4 +234,85 @@ if (currentEmail) {
 document.getElementById("logoutBtn").addEventListener("click", () => {
   localStorage.removeItem("currentUser");
   window.location.href = "login.html";
+});
+
+// Display Users Wallet
+const displayWallet = () => {
+  const currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) return;
+
+  const wallet =
+    JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
+  const ul = document.getElementById("walletList");
+  ul.innerHTML = "";
+
+  if (wallet.length === 0) {
+    ul.innerHTML = "<li>No coins in your wallet yet.</li>";
+    return;
+  }
+
+  const walletCoins = allCoins.filter((coin) => wallet.includes(coin.id));
+
+  walletCoins.forEach((coin) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+    <img src="${coin.image}" alt="${coin.name}" width="20"/>
+    <strong>${coin.name}</strong> (${coin.symbol.toUpperCase()}) - ${
+      coin.current_price
+    }
+    `;
+    ul.appendChild(li);
+  });
+};
+
+// Function to check if the coin is in wallet
+const isCoinInWallet = (coinId) => {
+  const currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) return false;
+
+  const wallet =
+    JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
+  return wallet.includes(coinId);
+};
+
+// Coin in Wallet Toggle
+const toggleWallet = (coinId) => {
+  const currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) {
+    alert("You need to log in first.");
+    return;
+  }
+
+  let wallet = JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
+
+  if (wallet.includes(coinId)) {
+    const confirmRemoval = confirm(
+      "Are you sure you want to remove this coin from wallet?"
+    );
+
+    if (confirmRemoval) {
+      wallet = wallet.filter((id) => id !== coinId);
+      localStorage.setItem(`${currentUser}_wallet`, JSON.stringify(wallet));
+      displayCrypto(allCoins);
+    }
+  } else {
+    wallet.push(coinId);
+    localStorage.setItem(`${currentUser}_wallet`, JSON.stringify(wallet));
+    displayCrypto(allCoins);
+  }
+};
+
+// Wallet List Toggle
+document.getElementById("walletBtn").addEventListener("click", () => {
+  const walletSection = document.getElementById("walletList");
+
+  if (
+    walletSection.style.display === "none" ||
+    walletSection.innerHTML === ""
+  ) {
+    displayWallet();
+    walletSection.style.display = "block";
+  } else {
+    walletSection.style.display = "none";
+  }
 });
