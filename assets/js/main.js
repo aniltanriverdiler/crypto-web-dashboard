@@ -14,7 +14,9 @@ const fetchCryptoData = async () => {
     console.log("Data Updated", data);
     allCoins = data;
     displayCrypto(data);
-  } catch (error) {}
+  } catch (error) {
+    console.error("API fetch error:", error);
+  }
 };
 
 // We are adding an interval to update the data every 30 seconds.
@@ -251,17 +253,19 @@ const displayWallet = () => {
     return;
   }
 
-  const walletCoins = allCoins.filter((coin) => wallet.includes(coin.id));
-
-  walletCoins.forEach((coin) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-    <img src="${coin.image}" alt="${coin.name}" width="20"/>
-    <strong>${coin.name}</strong> (${coin.symbol.toUpperCase()}) - ${
-      coin.current_price
+  wallet.forEach((walletItem) => {
+    const coin = allCoins.find((c) => c.id === walletItem.id);
+    if (coin) {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <img src="${coin.image}" alt="${coin.name}" width="20"/>
+        <strong>${coin.name}</strong> (${coin.symbol.toUpperCase()}) - $${
+        coin.current_price
+      }
+        | You have: <strong>${walletItem.amount}</strong> ${coin.id}
+      `;
+      ul.appendChild(li);
     }
-    `;
-    ul.appendChild(li);
   });
 };
 
@@ -284,22 +288,40 @@ const toggleWallet = (coinId) => {
   }
 
   let wallet = JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
+  const existingCoin = wallet.find((item) => item.id === coinId);
 
-  if (wallet.includes(coinId)) {
+  if (existingCoin) {
     const confirmRemoval = confirm(
-      "Are you sure you want to remove this coin from wallet?"
+      `You already have ${existingCoin.amount} ${coinId}. Do you want to remove it from wallet?`
     );
 
     if (confirmRemoval) {
-      wallet = wallet.filter((id) => id !== coinId);
+      wallet = wallet.filter((item) => item.id !== coinId);
       localStorage.setItem(`${currentUser}_wallet`, JSON.stringify(wallet));
       displayCrypto(allCoins);
+      return;
     }
-  } else {
-    wallet.push(coinId);
-    localStorage.setItem(`${currentUser}_wallet`, JSON.stringify(wallet));
-    displayCrypto(allCoins);
   }
+
+  const amount = prompt(
+    `How many ${coinId} do you want to add to your wallet?`
+  );
+  if (!amount || isNaN(amount) || Number(amount) <= 0) {
+    alert("Please enter a valid amount.");
+    return;
+  }
+
+  if (existingCoin) {
+    existingCoin.amount += Number(amount);
+  } else {
+    wallet.push({
+      id: coinId,
+      amount: Number(amount),
+    });
+  }
+
+  localStorage.setItem(`${currentUser}_wallet`, JSON.stringify(wallet));
+  displayCrypto(allCoins);
 };
 
 // Wallet List Toggle
@@ -316,3 +338,89 @@ document.getElementById("walletBtn").addEventListener("click", () => {
     walletSection.style.display = "none";
   }
 });
+
+// Transfer Coin With Email
+const transferCoin = () => {
+  const currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) {
+    alert("You need to log in first.");
+    return;
+  }
+
+  const receiver = prompt("Enter the email address of the recipient:");
+  if (!receiver || receiver === currentUser) {
+    alert("Invalid recipient.");
+    return;
+  }
+
+  const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+  const receiverExists = allUsers.some((user) => user.email === receiver);
+
+  if (!receiverExists) {
+    alert("Recipient user not found.");
+    return;
+  }
+
+  const wallet =
+    JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
+
+  if (wallet.length === 0) {
+    alert("You have no coins in your wallet to send.");
+    return;
+  }
+
+  const coinList = wallet
+    .map((item) => `${item.id} (${item.amount})`)
+    .join(", ");
+  const coinId = prompt(
+    `Your coins: ${coinList}\nWhich coin do you want to send?`
+  );
+
+  const selectedCoin = wallet.find((item) => item.id === coinId);
+
+  if (!selectedCoin) {
+    alert("Coin not found in your wallet.");
+    return;
+  }
+
+  const amountToSend = Number(
+    prompt(
+      `You have ${selectedCoin.amount} ${coinId}. How much do you want to send?`
+    )
+  );
+
+  if (
+    isNaN(amountToSend) ||
+    amountToSend <= 0 ||
+    amountToSend > selectedCoin.amount
+  ) {
+    alert("Invalid amount.");
+    return;
+  }
+
+  // Deduct the amount from the sender's wallet
+  selectedCoin.amount -= amountToSend;
+
+  if (selectedCoin.amount === 0) {
+    const updatedWallet = wallet.filter((item) => item.id !== coinId);
+    localStorage.setItem(`${currentUser}_wallet`, JSON.stringify(updatedWallet));
+  } else {
+    localStorage.setItem(`${currentUser}_wallet`, JSON.stringify(wallet));
+  }
+
+  // Add amount to recipient's wallet
+  let receiverWallet =
+    JSON.parse(localStorage.getItem(`${receiver}_wallet`)) || [];
+  const receiverCoin = receiverWallet.find((item) => item.id === coinId);
+
+  if (receiverCoin) {
+    receiverCoin.amount += amountToSend;
+  } else {
+    receiverWallet.push({ id: coinId, amount: amountToSend });
+  }
+
+  localStorage.setItem(`${receiver}_wallet`, JSON.stringify(receiverWallet));
+
+  alert(`Successfully transferred ${amountToSend} ${coinId} to ${receiver}.`);
+  displayCrypto(allCoins);
+};

@@ -25,11 +25,29 @@ document.getElementById("registerForm").addEventListener("submit", (e) => {
     password: password,
   };
 
-  const data = JSON.stringify(userData);
-  localStorage.setItem(email, data);
+  // Save individual user data by email
+  localStorage.setItem(email, JSON.stringify(userData));
+
+  // Add user to allUsers list
+  const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+
+  // Check if user already exists in allUsers (for Email)
+  const alreadyExists = allUsers.some((user) => user.email === email);
+  if (!alreadyExists) {
+    allUsers.push(userData);
+    localStorage.setItem("allUsers", JSON.stringify(allUsers));
+  }
+
+  // Create empty wallet for new user
+  const walletKey = `${email}_wallet`;
+  if (!localStorage.getItem(walletKey)) {
+    localStorage.setItem(walletKey, JSON.stringify([]));
+  }
 
   // Reset form fields after successful registration
   document.getElementById("registerForm").reset();
+
+  alert("Registration successful! You can now log in.");
 });
 
 // Login Form
@@ -56,7 +74,7 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
   }
 
   const walletKey = `${email}_wallet`;
-  
+
   if (!localStorage.getItem(walletKey)) {
     localStorage.setItem(walletKey, JSON.stringify([]));
   }
@@ -64,4 +82,3 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
   // Reset form fields after successful login
   document.getElementById("loginForm").reset();
 });
-
