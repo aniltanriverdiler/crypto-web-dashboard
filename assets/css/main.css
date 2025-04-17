@@ -1,3 +1,54 @@
-#walletList {
-    display: none;
+.sidebar {
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 240px;
+  background-color: #512da8;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar a {
+  color: #fff;
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.sidebar a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.content-area {
+  margin-left: 260px;
+  padding: 20px;
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+.sidebar .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+}
+
+#logoutBtn {
+  margin-top: 540px;
+}
+
+#welcomeMessage {
+    margin-left: 45px;
 }

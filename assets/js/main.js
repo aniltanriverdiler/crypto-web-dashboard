@@ -1,3 +1,49 @@
+// Sidebar Content View
+document.addEventListener("DOMContentLoaded", () => {
+  const currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const navLinks = document.querySelectorAll(".nav-link[data-target]");
+  const views = document.querySelectorAll(".view");
+
+  navLinks.forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      navLinks.forEach((l) => l.classList.remove("active"));
+      this.classList.add("active");
+
+      const targetId = this.dataset.target;
+      views.forEach((view) => {
+        view.classList.remove("active");
+        if (view.id === targetId) {
+          view.classList.add("active");
+        }
+      });
+
+      if (targetId === "favoritesView") {
+        displayFavorites();
+      }
+      if (targetId === "walletView") {
+        displayWallet();
+      }
+      if (targetId === "transferView") {
+        loadWalletToDropdown();
+      }
+    });
+  });
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  logoutBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    localStorage.removeItem("currentUser");
+    window.location.href = "login.html";
+  });
+});
+
 const container = document.getElementById("crypto-container");
 const searchInput = document.getElementById("search-input");
 const filterButtons = document.querySelectorAll(".filter-btn");
@@ -204,23 +250,57 @@ const toggleFavorite = (coinId) => {
 
 // Display User's Favorites
 const displayFavorites = () => {
-  let currentUser = localStorage.getItem("currentUser");
+  const currentUser = localStorage.getItem("currentUser");
   if (!currentUser) {
     alert("You need to log in first.");
     return;
   }
 
+  const favoritesContainer = document.getElementById("favorites-container");
+
+  // Favori coin ID'lerini alıyoruz
   const favorites =
     JSON.parse(localStorage.getItem(`${currentUser}_favorites`)) || [];
 
   if (favorites.length === 0) {
-    container.innerHTML = "<p>Henüz favori eklenmedi.</p>";
+    favoritesContainer.innerHTML = "<p>Henüz favori eklenmedi.</p>";
     return;
   }
 
+  // Tüm coin verilerinden favorilere eklenenleri filtreliyoruz
   const filteredData = allCoins.filter((coin) => favorites.includes(coin.id));
 
-  displayCrypto(filteredData);
+  // Favori coin kartlarını render ediyoruz
+  favoritesContainer.innerHTML = filteredData
+    .map((coin) => {
+      const priceChange = coin.price_change_percentage_24h.toFixed(2);
+      const changeClass = priceChange >= 0 ? "text-success" : "text-danger";
+      return `
+        <div class="col-md-4">
+          <div class="card">
+            <img src="${coin.image}" class="card-img-top" alt="${coin.name}">
+            <div class="card-body">
+              <h5 class="card-title">${
+                coin.name
+              } (${coin.symbol.toUpperCase()})</h5>
+              <p class="card-text fw-semibold">Fiyat: $${coin.current_price}</p>
+              <p class="card-text ${changeClass} fw-semibold">24h: %${priceChange}</p>
+              <button class="btn btn-outline-dark" onclick="showChart('${
+                coin.id
+              }', '${coin.name}', '${coin.price_change_percentage_24h}')">
+                Grafiği Göster
+              </button>
+              <button class="btn btn-danger" onclick="toggleFavorite('${
+                coin.id
+              }')">
+                Remove from Favorites
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
 };
 
 // Welcome Message For Users
@@ -232,39 +312,39 @@ if (currentEmail) {
   welcomeElement.textContent = `Welcome, ${user.name}!`;
 }
 
-// Logout
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("currentUser");
-  window.location.href = "login.html";
-});
-
 // Display Users Wallet
 const displayWallet = () => {
   const currentUser = localStorage.getItem("currentUser");
   if (!currentUser) return;
 
+  // Wallet verilerini localStorage'dan alıyoruz.
   const wallet =
     JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
-  const ul = document.getElementById("walletList");
-  ul.innerHTML = "";
+  console.log("wallet:", wallet);
+  const walletList = document.getElementById("walletList");
+  walletList.innerHTML = "";
 
   if (wallet.length === 0) {
-    ul.innerHTML = "<li>No coins in your wallet yet.</li>";
+    walletList.innerHTML =
+      "<li class='list-group-item'>No coins in your wallet yet.</li>";
     return;
   }
 
+  // Her bir coin için liste elemanı oluşturuyoruz.
   wallet.forEach((walletItem) => {
+    // allCoins array içinde coin bilgilerini arıyoruz.
     const coin = allCoins.find((c) => c.id === walletItem.id);
     if (coin) {
       const li = document.createElement("li");
+      li.classList.add("list-group-item");
       li.innerHTML = `
-        <img src="${coin.image}" alt="${coin.name}" width="20"/>
+        <img src="${coin.image}" alt="${coin.name}" width="20" class="me-2"/>
         <strong>${coin.name}</strong> (${coin.symbol.toUpperCase()}) - $${
         coin.current_price
       }
-        | You have: <strong>${walletItem.amount}</strong> ${coin.id}
+        | You have: <strong>${walletItem.amount}</strong>
       `;
-      ul.appendChild(li);
+      walletList.appendChild(li);
     }
   });
 };
@@ -276,7 +356,7 @@ const isCoinInWallet = (coinId) => {
 
   const wallet =
     JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
-  return wallet.includes(coinId);
+  return wallet.some((item) => item.id === coinId);
 };
 
 // Coin in Wallet Toggle
@@ -324,103 +404,91 @@ const toggleWallet = (coinId) => {
   displayCrypto(allCoins);
 };
 
-// Wallet List Toggle
-document.getElementById("walletBtn").addEventListener("click", () => {
-  const walletSection = document.getElementById("walletList");
-
-  if (
-    walletSection.style.display === "none" ||
-    walletSection.innerHTML === ""
-  ) {
-    displayWallet();
-    walletSection.style.display = "block";
-  } else {
-    walletSection.style.display = "none";
-  }
-});
-
-// Transfer Coin With Email
-const transferCoin = () => {
+// Show dropdown menu for coin in users wallet
+const loadWalletToDropdown = () => {
   const currentUser = localStorage.getItem("currentUser");
-  if (!currentUser) {
-    alert("You need to log in first.");
+  const wallet =
+    JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
+
+  const coinSelect = document.getElementById("coinSelect");
+  coinSelect.innerHTML = '<option value="">-- Select Coin --</option>';
+
+  wallet
+    .filter((item) => item.id && item.amount > 0) // 💡 sadece geçerli coinler
+    .forEach((coin) => {
+      const option = document.createElement("option");
+      option.value = coin.id;
+      option.textContent = `${coin.id} (${coin.amount})`;
+      coinSelect.appendChild(option);
+    });
+};
+
+// Submit transfer
+const submitTransfer = () => {
+  console.log("Transfer başladı...");
+  const currentUser = localStorage.getItem("currentUser");
+  const recipientEmail = document.getElementById("receiverEmail").value.trim();
+  const coinId = document.getElementById("coinSelect").value;
+  const amountToSend = Number(document.getElementById("amountToSend").value); // ✅ düzeltildi
+
+  if (!recipientEmail || !coinId || isNaN(amountToSend) || amountToSend <= 0) {
+    alert("Please fill all fields correctly.");
     return;
   }
 
-  const receiver = prompt("Enter the email address of the recipient:");
-  if (!receiver || receiver === currentUser) {
-    alert("Invalid recipient.");
+  if (recipientEmail === currentUser) {
+    alert("You cannot send coins to yourself.");
     return;
   }
 
   const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
-  const receiverExists = allUsers.some((user) => user.email === receiver);
-
+  const receiverExists = allUsers.some((user) => user.email === recipientEmail);
   if (!receiverExists) {
     alert("Recipient user not found.");
     return;
   }
 
-  const wallet =
+  const senderWallet =
     JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
+  const selectedCoin = senderWallet.find((item) => item.id === coinId);
 
-  if (wallet.length === 0) {
-    alert("You have no coins in your wallet to send.");
+  if (!selectedCoin || selectedCoin.amount < amountToSend) {
+    alert(`You don't have enough ${coinId} to send.`);
     return;
   }
 
-  const coinList = wallet
-    .map((item) => `${item.id} (${item.amount})`)
-    .join(", ");
-  const coinId = prompt(
-    `Your coins: ${coinList}\nWhich coin do you want to send?`
-  );
-
-  const selectedCoin = wallet.find((item) => item.id === coinId);
-
-  if (!selectedCoin) {
-    alert("Coin not found in your wallet.");
-    return;
-  }
-
-  const amountToSend = Number(
-    prompt(
-      `You have ${selectedCoin.amount} ${coinId}. How much do you want to send?`
-    )
-  );
-
-  if (
-    isNaN(amountToSend) ||
-    amountToSend <= 0 ||
-    amountToSend > selectedCoin.amount
-  ) {
-    alert("Invalid amount.");
-    return;
-  }
-
-  // Deduct the amount from the sender's wallet
   selectedCoin.amount -= amountToSend;
+  const updatedSenderWallet =
+    selectedCoin.amount === 0
+      ? senderWallet.filter((item) => item.id !== coinId)
+      : senderWallet;
+  localStorage.setItem(
+    `${currentUser}_wallet`,
+    JSON.stringify(updatedSenderWallet)
+  );
 
-  if (selectedCoin.amount === 0) {
-    const updatedWallet = wallet.filter((item) => item.id !== coinId);
-    localStorage.setItem(`${currentUser}_wallet`, JSON.stringify(updatedWallet));
-  } else {
-    localStorage.setItem(`${currentUser}_wallet`, JSON.stringify(wallet));
-  }
-
-  // Add amount to recipient's wallet
-  let receiverWallet =
-    JSON.parse(localStorage.getItem(`${receiver}_wallet`)) || [];
+  const receiverWallet =
+    JSON.parse(localStorage.getItem(`${recipientEmail}_wallet`)) || [];
   const receiverCoin = receiverWallet.find((item) => item.id === coinId);
-
   if (receiverCoin) {
     receiverCoin.amount += amountToSend;
   } else {
     receiverWallet.push({ id: coinId, amount: amountToSend });
   }
+  localStorage.setItem(
+    `${recipientEmail}_wallet`,
+    JSON.stringify(receiverWallet)
+  );
 
-  localStorage.setItem(`${receiver}_wallet`, JSON.stringify(receiverWallet));
+  alert(
+    `Successfully transferred ${amountToSend} ${coinId} to ${recipientEmail}.`
+  );
 
-  alert(`Successfully transferred ${amountToSend} ${coinId} to ${receiver}.`);
+  // ✅ inputları temizle
+  document.getElementById("receiverEmail").value = "";
+  document.getElementById("coinSelect").value = "";
+  document.getElementById("amountToSend").value = "";
+
   displayCrypto(allCoins);
+  loadWalletToDropdown();
 };

@@ -9,65 +9,114 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/css/main.css">
   </head>
   <body>
-    <h2 id="welcomeMessage"></h2>
-    <div class="container">
-      <div class="d-flex align-items-center mb-4">
-        <h1>Kripto Takip Paneli</h1>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <input
-            type="text"
-            id="search-input"
-            class="form-control"
-            placeholder="Search Coins..."
-          />
-        </div>
-        <div class="col-md-6">
-          <div class="btn-group" role="group" aria-label="Basic example">
-            <button
-              type="button"
-              class="btn btn-outline-dark filter-btn"
-              data-filter="all"
-            >
-              Tümü
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-dark filter-btn"
-              data-filter="gainers"
-            >
-              Yükselenler
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-dark filter-btn"
-              data-filter="losers"
-            >
-              Düşenler
-            </button>
-            <button type="button" class="btn btn-outline-dark filter-btn" data-filter="favorites">
-             Favoriler
-            </button>
-          </div>
-          <button id="logoutBtn" class="btn btn-outline-secondary">Logout</button>
-          <button id="walletBtn" class="btn btn-warning m-2">Show Wallet</button>
-          <button class="btn btn-warning mt-3" onclick="transferCoin()">Transfer Coin</button>
-        </div>
-      </div>
-     
-      <div class="mt-5">
-        <h3 class="mb-3">My Wallet</h3>
-        <ul id="walletList" class="list-group mt-3"></ul>
-      </div>
-      <div id="crypto-container" class="row g-4"></div>
-      <div id="favorites-container" class="row g-4"></div>
-    </div>
+     <!-- Sidebar Section -->
+     <nav class="sidebar">
+      <h3 class="text-white mb-4">CryptoWeb</h3>
+      <a href="#" class="nav-link" data-target="dashboardView">
+        <i class="fa-solid fa-chart-line"></i> Home Page
+      </a>
+      <a href="#" class="nav-link" data-target="favoritesView">
+        <i class="fa-solid fa-star"></i> Favorites
+      </a>
+      <a href="#" class="nav-link" data-target="walletView">
+        <i class="fa-solid fa-wallet"></i> Wallet
+      </a>
+      <a href="#" class="nav-link" data-target="transferView">
+        <i class="fa-solid fa-paper-plane"></i> Transfer Coin
+      </a>
+      <a href="#" class="nav-link" id="logoutBtn">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </a>
+    </nav>
 
-    <!-- Graphic Section -->
+    <!-- Dashboard Content Section -->
+    <div class="content-area">
+      <!-- Dashboard Section -->
+      <div id="dashboardView" class="view active">
+        <h1 id="welcomeMessage"></h1>
+        <div class="container">
+          <div class="d-flex align-items-center mb-3">
+            <h2>Crypto Tracking Panel</h2>
+          </div>
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <input
+                type="text"
+                id="search-input"
+                class="form-control"
+                placeholder="Search Coins..."
+              />
+            </div>
+            <div class="col-md-6">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                <button
+                  type="button"
+                  class="btn btn-outline-dark filter-btn"
+                  data-filter="all"
+                >
+                  Tümü
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-dark filter-btn"
+                  data-filter="gainers"
+                >
+                  Yükselenler
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-dark filter-btn"
+                  data-filter="losers"
+                >
+                  Düşenler
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Show Coin in Dashboard -->
+          <div id="crypto-container" class="row g-4"></div>
+        </div>
+      </div>
+
+      <!-- Favorites Section -->
+      <div id="favoritesView" class="view">
+        <!-- Show Coin in Favorites -->
+        <div id="favorites-container" class="row g-4"></div>
+      </div>
+
+      <!-- Wallet Section -->
+      <div id="walletView" class="view">
+        <div class="mt-5">
+          <h3 class="mb-3">My Wallet</h3>
+          <ul id="walletList" class="list-group mt-3"></ul>
+        </div>
+      </div>
+
+      <!-- Transfer Section -->
+      <div id="transferView" class="view">
+        <div id="transferForm" class="p-4 bg-dark rounded text-white">
+          <h4 class="mb-3">Transfer Coin</h4>
+          <div class="form-group mb-2">
+            <label for="receiverEmail">Recipient Email</label>
+            <input type="email" class="form-control" id="receiverEmail" placeholder="user@example.com" />
+          </div>
+          <div class="form-group mb-2">
+            <label for="coinSelect">Select Coin</label>
+            <select id="coinSelect" class="form-control"></select>
+          </div>
+          <div class="form-group mb-2">
+            <label for="amountToSend">Amount</label>
+            <input type="number" class="form-control" id="amountToSend" placeholder="0" />
+          </div>
+          <button type="button" class="btn btn-warning mt-2" onclick="submitTransfer()">Send</button>
+        </div>        
+      </div>
+
+    <!-- Graphic (Chart Modal) Section -->
     <div class="modal fade" tabindex="-1" id="chartModal" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
