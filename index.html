@@ -5,10 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CryptoWeb Dashboard</title>
+    <link rel="icon" type="image/png" href="assets/images/crypto-favicon.png">
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/css/main.css">
   </head>
@@ -16,34 +18,45 @@
      <!-- Sidebar Section -->
      <nav class="sidebar">
       <h3 class="text-white mb-4">CryptoWeb</h3>
-      <a href="#" class="nav-link" data-target="dashboardView">
-        <i class="fa-solid fa-chart-line"></i> Home Page
-      </a>
-      <a href="#" class="nav-link" data-target="favoritesView">
-        <i class="fa-solid fa-star"></i> Favorites
-      </a>
-      <a href="#" class="nav-link" data-target="walletView">
-        <i class="fa-solid fa-wallet"></i> Wallet
-      </a>
-      <a href="#" class="nav-link" data-target="transferView">
-        <i class="fa-solid fa-paper-plane"></i> Transfer Coin
-      </a>
-      <a href="#" class="nav-link" id="logoutBtn">
-        <i class="fa-solid fa-right-from-bracket"></i> Logout
-      </a>
+      <div class="sidebar-nav">
+        <a href="#" class="nav-link" data-target="dashboardView">
+          <i class="fa-solid fa-chart-line"></i> Home Page
+        </a>
+        <a href="#" class="nav-link" data-target="favoritesView">
+          <i class="fa-solid fa-star"></i> Favorites
+        </a>
+        <a href="#" class="nav-link" data-target="walletView">
+          <i class="fa-solid fa-wallet"></i> Wallet
+        </a>
+        <a href="#" class="nav-link" data-target="transferView">
+          <i class="fa-solid fa-paper-plane"></i> Transfer Coin
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <div class="theme-switch-wrapper">
+          <span class="theme-text">Dark Mode</span>
+          <label class="theme-switch">
+            <input type="checkbox" id="themeToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <a href="#" class="nav-link" id="logoutBtn">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
+      </div>
     </nav>
 
     <!-- Dashboard Content Section -->
     <div class="content-area">
       <!-- Dashboard Section -->
       <div id="dashboardView" class="view active">
-        <h1 id="welcomeMessage"></h1>
+        <div class="dashboard-header">
+          <h1 id="welcomeMessage"></h1>
+          <h2>Crypto Tracking Panel</h2>
+        </div>
         <div class="container">
-          <div class="d-flex align-items-center mb-3">
-            <h2>Crypto Tracking Panel</h2>
-          </div>
-          <div class="row mb-4">
-            <div class="col-md-6">
+          <div class="controls-row">
+            <div class="search-container">
               <input
                 type="text"
                 id="search-input"
@@ -51,28 +64,28 @@
                 placeholder="Search Coins..."
               />
             </div>
-            <div class="col-md-6">
+            <div class="filter-container">
               <div class="btn-group" role="group" aria-label="Basic example">
                 <button
                   type="button"
                   class="btn btn-outline-dark filter-btn"
                   data-filter="all"
                 >
-                  Tümü
+                  All
                 </button>
                 <button
                   type="button"
                   class="btn btn-outline-dark filter-btn"
                   data-filter="gainers"
                 >
-                  Yükselenler
+                  Top Gainers
                 </button>
                 <button
                   type="button"
                   class="btn btn-outline-dark filter-btn"
                   data-filter="losers"
                 >
-                  Düşenler
+                  Top Losers
                 </button>
               </div>
             </div>
@@ -80,7 +93,7 @@
           <!-- Show Coin in Dashboard -->
           <div id="crypto-container" class="row g-4"></div>
         </div>
-      </div>
+      </div>      
 
       <!-- Favorites Section -->
       <div id="favoritesView" class="view">
@@ -90,8 +103,10 @@
 
       <!-- Wallet Section -->
       <div id="walletView" class="view">
-        <div class="mt-5">
-          <h3 class="mb-3">My Wallet</h3>
+        <div class="wallet-section mt-5">
+          <div class="wallet-header">
+            <h3>My Wallet</h3>
+          </div>
           <ul id="walletList" class="list-group mt-3"></ul>
         </div>
       </div>
@@ -112,7 +127,9 @@
             <label for="amountToSend">Amount</label>
             <input type="number" class="form-control" id="amountToSend" placeholder="0" />
           </div>
-          <button type="button" class="btn btn-warning mt-2" onclick="submitTransfer()">Send</button>
+          <button type="button" class="btn submit-btn mt-3" onclick="submitTransfer()">
+            <i class="fa-solid fa-paper-plane"></i> Send
+          </button>
         </div>        
       </div>
 
@@ -121,7 +138,7 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="chartTitle">Fiyat Grafiği</h5>
+            <h5 class="modal-title" id="chartTitle">Price Chart</h5>
             <button
               type="button"
               class="btn-close"
@@ -137,8 +154,8 @@
     </div>
 
     <!-- Script Section -->
+    <script src="assets/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="assets/js/main.js"></script>
   </body>
 </html>

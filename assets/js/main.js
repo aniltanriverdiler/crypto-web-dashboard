@@ -77,33 +77,34 @@ const displayCrypto = (coins) => {
       const isFavorite = isCoinFavorite(coin.id);
 
       return `
-      <div class="col-md-4">
-      <div class="card">
-        <img src="${coin.image}" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">${
-            coin.name
-          } (${coin.symbol.toUpperCase()})</h5>
-          <p class="card-text fw-semibold">Fiyat: $${coin.current_price}</p>
-          <p class="card-text ${changeClass} fw-semibold">24h: %${priceChange}</p>
+  <div class="col-md-4">
+    <div class="card">
+      <img src="${coin.image}" class="card-img-top" alt="${coin.name}">
+      <div class="card-body">
+        <h5 class="card-title">${coin.name} (${coin.symbol.toUpperCase()})</h5>
+        <p class="card-text fw-semibold">Price: $${coin.current_price}</p>
+        <p class="card-text ${changeClass} fw-semibold">24h: %${priceChange}</p>
+        <div class="card-actions">
           <button class="btn btn-outline-dark" onclick="showChart('${
             coin.id
           }', '${coin.name}', '${
         coin.price_change_percentage_24h
-      }')" >Grafiği Göster</button>
-      <button class="btn ${isFavorite ? "btn-danger" : "btn-outline-danger"}"
-       onclick="toggleFavorite('${coin.id}')">
-       ${isFavorite ? "Remove from Favorites" : "Add to Favorites"}
-      </button>
-      <button class="btn ${
-        isCoinInWallet(coin.id) ? "btn-success" : "btn-outline-success"
-      }" onclick="toggleWallet('${coin.id}')">
-      ${isCoinInWallet(coin.id) ? "Remove from Wallet" : "Add to Wallet"}      
-      </button>
+      }')">Show Chart</button>
+          <button class="btn ${
+            isFavorite ? "btn-danger" : "btn-outline-danger"
+          }" onclick="toggleFavorite('${coin.id}')">
+            ${isFavorite ? "Remove" : "Favorite"}
+          </button>
+          <button class="btn ${
+            isCoinInWallet(coin.id) ? "btn-success" : "btn-outline-success"
+          }" onclick="toggleWallet('${coin.id}')">
+            ${isCoinInWallet(coin.id) ? "Remove" : "Add"}
+          </button>
+        </div>
       </div>
-      </div>
-      </div>
-    `;
+    </div>
+  </div>
+`;
     })
     .join("");
 };
@@ -169,7 +170,7 @@ const showChart = async (coinId, coinName, priceChange) => {
       labels,
       datasets: [
         {
-          label: `${coinName} - Son 7 Gün`,
+          label: `${coinName} - Last 7 Days`,
           data: prices,
           borderColor: priceChange >= 0 ? "green" : "red",
           backgroundColor:
@@ -258,19 +259,18 @@ const displayFavorites = () => {
 
   const favoritesContainer = document.getElementById("favorites-container");
 
-  // Favori coin ID'lerini alıyoruz
+  // Get fav coin id
   const favorites =
     JSON.parse(localStorage.getItem(`${currentUser}_favorites`)) || [];
 
   if (favorites.length === 0) {
-    favoritesContainer.innerHTML = "<p>Henüz favori eklenmedi.</p>";
+    favoritesContainer.innerHTML = "<p>No favorites have been added yet.</p>";
     return;
   }
 
-  // Tüm coin verilerinden favorilere eklenenleri filtreliyoruz
   const filteredData = allCoins.filter((coin) => favorites.includes(coin.id));
 
-  // Favori coin kartlarını render ediyoruz
+  // Favorite coin card rendering
   favoritesContainer.innerHTML = filteredData
     .map((coin) => {
       const priceChange = coin.price_change_percentage_24h.toFixed(2);
@@ -283,18 +283,20 @@ const displayFavorites = () => {
               <h5 class="card-title">${
                 coin.name
               } (${coin.symbol.toUpperCase()})</h5>
-              <p class="card-text fw-semibold">Fiyat: $${coin.current_price}</p>
+              <p class="card-text fw-semibold">Price: $${coin.current_price}</p>
               <p class="card-text ${changeClass} fw-semibold">24h: %${priceChange}</p>
-              <button class="btn btn-outline-dark" onclick="showChart('${
-                coin.id
-              }', '${coin.name}', '${coin.price_change_percentage_24h}')">
-                Grafiği Göster
-              </button>
-              <button class="btn btn-danger" onclick="toggleFavorite('${
-                coin.id
-              }')">
-                Remove from Favorites
-              </button>
+              <div class="card-actions">
+                <button class="btn btn-outline-dark" onclick="showChart('${
+                  coin.id
+                }', '${coin.name}', '${coin.price_change_percentage_24h}')">
+                  Show Chart
+                </button>
+                <button class="btn btn-danger" onclick="toggleFavorite('${
+                  coin.id
+                }')">
+                  Remove
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -312,15 +314,13 @@ if (currentEmail) {
   welcomeElement.textContent = `Welcome, ${user.name}!`;
 }
 
-// Display Users Wallet
+// Modified displayWallet function
 const displayWallet = () => {
   const currentUser = localStorage.getItem("currentUser");
   if (!currentUser) return;
 
-  // Wallet verilerini localStorage'dan alıyoruz.
   const wallet =
     JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
-  console.log("wallet:", wallet);
   const walletList = document.getElementById("walletList");
   walletList.innerHTML = "";
 
@@ -330,19 +330,22 @@ const displayWallet = () => {
     return;
   }
 
-  // Her bir coin için liste elemanı oluşturuyoruz.
   wallet.forEach((walletItem) => {
-    // allCoins array içinde coin bilgilerini arıyoruz.
     const coin = allCoins.find((c) => c.id === walletItem.id);
     if (coin) {
       const li = document.createElement("li");
       li.classList.add("list-group-item");
       li.innerHTML = `
-        <img src="${coin.image}" alt="${coin.name}" width="20" class="me-2"/>
-        <strong>${coin.name}</strong> (${coin.symbol.toUpperCase()}) - $${
-        coin.current_price
-      }
-        | You have: <strong>${walletItem.amount}</strong>
+        <img src="${coin.image}" alt="${coin.name}" class="coin-icon"/>
+        <div class="coin-details">
+          <div>
+            <div class="coin-name">${
+              coin.name
+            } <span class="text-muted">(${coin.symbol.toUpperCase()})</span></div>
+            <div class="coin-price">$${coin.current_price}</div>
+          </div>
+          <div class="coin-amount">${walletItem.amount}</div>
+        </div>
       `;
       walletList.appendChild(li);
     }
@@ -414,7 +417,7 @@ const loadWalletToDropdown = () => {
   coinSelect.innerHTML = '<option value="">-- Select Coin --</option>';
 
   wallet
-    .filter((item) => item.id && item.amount > 0) // 💡 sadece geçerli coinler
+    .filter((item) => item.id && item.amount > 0)
     .forEach((coin) => {
       const option = document.createElement("option");
       option.value = coin.id;
@@ -425,11 +428,10 @@ const loadWalletToDropdown = () => {
 
 // Submit transfer
 const submitTransfer = () => {
-  console.log("Transfer başladı...");
   const currentUser = localStorage.getItem("currentUser");
   const recipientEmail = document.getElementById("receiverEmail").value.trim();
   const coinId = document.getElementById("coinSelect").value;
-  const amountToSend = Number(document.getElementById("amountToSend").value); // ✅ düzeltildi
+  const amountToSend = Number(document.getElementById("amountToSend").value);
 
   if (!recipientEmail || !coinId || isNaN(amountToSend) || amountToSend <= 0) {
     alert("Please fill all fields correctly.");
@@ -484,7 +486,7 @@ const submitTransfer = () => {
     `Successfully transferred ${amountToSend} ${coinId} to ${recipientEmail}.`
   );
 
-  // ✅ inputları temizle
+  // Clear inputs
   document.getElementById("receiverEmail").value = "";
   document.getElementById("coinSelect").value = "";
   document.getElementById("amountToSend").value = "";
@@ -492,3 +494,38 @@ const submitTransfer = () => {
   displayCrypto(allCoins);
   loadWalletToDropdown();
 };
+
+// Theme Toggle Functionality
+document.addEventListener("DOMContentLoaded", () => {
+  const themeToggle = document.getElementById("themeToggle");
+
+  // Check for saved theme preference or respect OS preference
+  const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+  const savedTheme = localStorage.getItem("theme");
+
+  // If user previously selected a theme, apply it
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    themeToggle.checked = true;
+  } else if (savedTheme === "light") {
+    document.body.classList.remove("dark-mode");
+    themeToggle.checked = false;
+  } else {
+    // Otherwise apply based on OS preference
+    if (prefersDarkScheme.matches) {
+      document.body.classList.add("dark-mode");
+      themeToggle.checked = true;
+    }
+  }
+
+  // Handle toggle clicks
+  themeToggle.addEventListener("change", () => {
+    if (themeToggle.checked) {
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("theme", "light");
+    }
+  });
+});
