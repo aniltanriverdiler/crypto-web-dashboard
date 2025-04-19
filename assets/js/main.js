@@ -60,6 +60,10 @@ const fetchCryptoData = async () => {
     console.log("Data Updated", data);
     allCoins = data;
     displayCrypto(data);
+
+    if (document.getElementById("walletView").classList.contains("active")) {
+      updateWalletTotalValue();
+    }
   } catch (error) {
     console.error("API fetch error:", error);
   }
@@ -327,6 +331,7 @@ const displayWallet = () => {
   if (wallet.length === 0) {
     walletList.innerHTML =
       "<li class='list-group-item'>No coins in your wallet yet.</li>";
+    updateWalletTotalValue();
     return;
   }
 
@@ -350,6 +355,8 @@ const displayWallet = () => {
       walletList.appendChild(li);
     }
   });
+
+  updateWalletTotalValue();
 };
 
 // Function to check if the coin is in wallet
@@ -529,3 +536,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// Function to calculate and display the total wallet value
+function updateWalletTotalValue() {
+  const currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) return;
+
+  const wallet =
+    JSON.parse(localStorage.getItem(`${currentUser}_wallet`)) || [];
+
+  // Calculate total value by multiplying each coin's amount with its current price
+  let totalValue = 0;
+
+  wallet.forEach((walletItem) => {
+    const coin = allCoins.find((c) => c.id === walletItem.id);
+    if (coin) {
+      const coinValue = walletItem.amount * coin.current_price;
+      totalValue += coinValue;
+    }
+  });
+
+  // Format the total value with commas and 2 decimal places
+  const formattedTotal = totalValue.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  // Update the UI with the calculated total value
+  const totalValueElement = document.getElementById("walletTotalValue");
+  totalValueElement.textContent = `💵 Total Value: ${formattedTotal}`;
+
+  // Add a class to animate the value if it changes
+  totalValueElement.classList.add("value-updated");
+
+  // Remove the animation class after the animation completes
+  setTimeout(() => {
+    totalValueElement.classList.remove("value-updated");
+  }, 1000);
+}

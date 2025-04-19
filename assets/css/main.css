@@ -710,6 +710,30 @@ input:checked + .slider:before {
   padding: 20px;
 }
 
+/* Total Wallet Styles */
+.wallet-total-value {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  color: white;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 18px;
+  box-shadow: 0 4px 10px rgba(83, 109, 254, 0.3);
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+/* Animation when value updates */
+@keyframes valueUpdate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.value-updated {
+  animation: valueUpdate 1s ease;
+}
+
 /* RESPONSIVE ADJUSTMENTS */
 @media (max-width: 992px) {
   .sidebar {
@@ -890,4 +914,9 @@ body.dark-mode .chart-container {
 
 body.dark-mode #priceChart {
   filter: brightness(0.9);
+}
+
+/* Dark Mode Total Wallet */
+body.dark-mode .wallet-total-value {
+  box-shadow: 0 4px 10px rgba(83, 109, 254, 0.5);
 }
