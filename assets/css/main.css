@@ -725,13 +725,130 @@ input:checked + .slider:before {
 
 /* Animation when value updates */
 @keyframes valueUpdate {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .value-updated {
   animation: valueUpdate 1s ease;
+}
+
+/* Transfer History Styles */
+.transfer-history-container {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.history-title {
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.history-title i {
+  margin-right: 8px;
+  color: var(--accent);
+}
+
+.transfer-history-table {
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.transfer-history-table thead tr {
+  background: linear-gradient(
+    to right,
+    var(--primary-light),
+    var(--accent-light)
+  );
+  color: white;
+}
+
+.transfer-history-table th {
+  padding: 12px 15px;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+}
+
+.transfer-history-table th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.transfer-history-table th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.transfer-history-table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.transfer-history-table tbody tr:hover {
+  background-color: rgba(83, 109, 254, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Sent and received styling */
+tr.transfer-sent {
+  border-left: 4px solid var(--danger);
+}
+
+tr.transfer-received {
+  border-left: 4px solid var(--success);
+}
+
+.transfer-amount {
+  font-weight: 600;
+}
+
+.transfer-amount.sent {
+  color: var(--danger);
+}
+
+.transfer-amount.received {
+  color: var(--success);
+}
+
+.badge {
+  padding: 5px 10px;
+  font-weight: 500;
+  border-radius: 20px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+/* Animation for new transfers */
+@keyframes newTransferHighlight {
+  0% {
+    background-color: rgba(83, 109, 254, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.new-transfer {
+  animation: newTransferHighlight 2s ease;
 }
 
 /* RESPONSIVE ADJUSTMENTS */
@@ -919,4 +1036,30 @@ body.dark-mode #priceChart {
 /* Dark Mode Total Wallet */
 body.dark-mode .wallet-total-value {
   box-shadow: 0 4px 10px rgba(83, 109, 254, 0.5);
+}
+
+/* Dark Mode History Section */
+body.dark-mode .transfer-history-container {
+  background-color: #2d2d2d;
+}
+
+body.dark-mode .history-title {
+  color: var(--accent-light);
+  border-bottom-color: var(--accent);
+}
+
+body.dark-mode .transfer-history-table tbody tr:hover {
+  background-color: rgba(83, 109, 254, 0.15);
+}
+
+body.dark-mode .transfer-history-table tbody tr {
+  color: var(--text-light);
+}
+
+body.dark-mode .user-name {
+  color: var(--accent-light);
+}
+
+body.dark-mode .text-muted {
+  color: #aaa !important;
 }

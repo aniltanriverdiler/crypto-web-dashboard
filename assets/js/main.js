@@ -489,6 +489,9 @@ const submitTransfer = () => {
     JSON.stringify(receiverWallet)
   );
 
+  // Record the transfer in history
+  storeTransferHistory(currentUser, recipientEmail, coinId, amountToSend);
+
   alert(
     `Successfully transferred ${amountToSend} ${coinId} to ${recipientEmail}.`
   );
@@ -500,7 +503,20 @@ const submitTransfer = () => {
 
   displayCrypto(allCoins);
   loadWalletToDropdown();
+  displayTransferHistory(); // Update the transfer history display
 };
+
+// Add event listener to update the transfer history when the Transfer tab is clicked
+document.addEventListener("DOMContentLoaded", () => {
+  const transferTabLink = document.querySelector(
+    '.nav-link[data-target="transferView"]'
+  );
+  if (transferTabLink) {
+    transferTabLink.addEventListener("click", () => {
+      displayTransferHistory();
+    });
+  }
+});
 
 // Theme Toggle Functionality
 document.addEventListener("DOMContentLoaded", () => {
@@ -575,4 +591,149 @@ function updateWalletTotalValue() {
   setTimeout(() => {
     totalValueElement.classList.remove("value-updated");
   }, 1000);
+}
+
+// Function to store a transfer in transfer history
+function storeTransferHistory(sender, receiver, coinId, amount) {
+  // Get current timestamp
+  const timestamp = new Date().toISOString();
+
+  // Create a transfer object
+  const transfer = {
+    sender,
+    receiver,
+    coinId,
+    amount,
+    timestamp,
+  };
+
+  // Get existing transfers from localStorage or initialize empty array
+  const allTransfers =
+    JSON.parse(localStorage.getItem("transferHistory")) || [];
+
+  // Add the new transfer
+  allTransfers.push(transfer);
+
+  // Store updated transfers back to localStorage
+  localStorage.setItem("transferHistory", JSON.stringify(allTransfers));
+
+  // Update the transfer history display if we're on the transfer view
+  if (document.getElementById("transferView").classList.contains("active")) {
+    displayTransferHistory();
+  }
+}
+
+// Function to display transfer history
+function displayTransferHistory() {
+  const currentUser = localStorage.getItem("currentUser");
+  if (!currentUser) return;
+
+  // Get all transfers
+  const allTransfers =
+    JSON.parse(localStorage.getItem("transferHistory")) || [];
+
+  // Filter transfers related to current user (either as sender or receiver)
+  const userTransfers = allTransfers.filter(
+    (transfer) =>
+      transfer.sender === currentUser || transfer.receiver === currentUser
+  );
+
+  // Get the transfer history table body
+  const transferHistoryTableBody = document.getElementById(
+    "transferHistoryTableBody"
+  );
+
+  // Clear the table body
+  transferHistoryTableBody.innerHTML = "";
+
+  if (userTransfers.length === 0) {
+    // Display a message when no transfers exist
+    transferHistoryTableBody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center py-4">No transfers found.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  // Sort transfers by timestamp (most recent first)
+  userTransfers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  // Populate the table with transfers
+  userTransfers.forEach((transfer) => {
+    // Find coin details
+    const coin = allCoins.find((c) => c.id === transfer.coinId) || {
+      name: transfer.coinId,
+      symbol: transfer.coinId,
+    };
+
+    // Format the timestamp
+    const date = new Date(transfer.timestamp);
+    const formattedDate = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // Determine transfer type (sent or received)
+    const transferType = transfer.sender === currentUser ? "sent" : "received";
+
+    // Create table row
+    const tr = document.createElement("tr");
+    tr.classList.add(`transfer-${transferType}`);
+
+    tr.innerHTML = `
+      <td>
+        ${
+          transfer.sender === currentUser
+            ? '<span class="badge bg-primary">You</span>'
+            : formatEmailForDisplay(transfer.sender)
+        }
+      </td>
+      <td>
+        ${
+          transfer.receiver === currentUser
+            ? '<span class="badge bg-success">You</span>'
+            : formatEmailForDisplay(transfer.receiver)
+        }
+      </td>
+      <td>
+        ${coin.name || transfer.coinId} 
+        <span class="text-muted">(${(
+          coin.symbol || transfer.coinId
+        ).toUpperCase()})</span>
+      </td>
+      <td class="transfer-amount ${transferType}">
+        ${transferType === "sent" ? "-" : "+"} ${transfer.amount}
+      </td>
+      <td>${formattedDate}</td>
+    `;
+
+    transferHistoryTableBody.appendChild(tr);
+  });
+}
+
+// Helper function to format email for better display
+function formatEmailForDisplay(email) {
+  if (!email) return "";
+
+  // Try to get the user's name from localStorage
+  try {
+    const user = JSON.parse(localStorage.getItem(email));
+    if (user && user.name) {
+      return `<span class="user-name">${user.name}</span>`;
+    }
+  } catch (e) {
+    console.error("Error getting user data:", e);
+  }
+
+  // If no name is found or there's an error, display shortened email
+  if (email.length > 15) {
+    return `${email.substring(0, 10)}...${email.substring(
+      email.lastIndexOf("@")
+    )}`;
+  }
+  return email;
 }

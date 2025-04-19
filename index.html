@@ -131,8 +131,33 @@
           <button type="button" class="btn submit-btn mt-3" onclick="submitTransfer()">
             <i class="fa-solid fa-paper-plane"></i> Send
           </button>
-        </div>        
-      </div>
+        </div>   
+      <!-- Transfer History Section -->
+      <div class="transfer-history-container mt-4">
+        <h4 class="history-title">
+          <i class="fa-solid fa-clock-rotate-left"></i> 
+          Transfer History
+        </h4>
+      <div class="table-responsive">
+          <table class="table table-hover transfer-history-table">
+          <thead>
+            <tr>
+             <th>Sender</th>
+             <th>Receiver</th>
+             <th>Coin</th>
+             <th>Amount</th>
+             <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="transferHistoryTableBody">
+           <tr>
+            <td colspan="5" class="text-center py-4">No transfers found.</td>
+           </tr>
+          </tbody>
+          </table>
+        </div>
+      </div>                       
+    </div>
 
     <!-- Graphic (Chart Modal) Section -->
     <div class="modal fade" tabindex="-1" id="chartModal" aria-hidden="true">
